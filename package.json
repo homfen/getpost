@@ -1,6 +1,6 @@
 {
   "name": "getpost",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "get or post a url by command line",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
