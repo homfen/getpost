@@ -1,4 +1,4 @@
-get or post a url by command line
+get or post the url by command line
 
 ## Install
 npm install -g getpost
