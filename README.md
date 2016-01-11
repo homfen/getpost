@@ -13,7 +13,7 @@ getpost g http://www.example.com?query=xxxxx
 
 POST: 
 ```
-getpost p [http://]www.example.com?query=xxxxx
+getpost p http://www.example.com?query=xxxxx
 ```
 
 ## Note:
