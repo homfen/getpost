@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
 var request = require('request');
+var exec = require('child_process').exec;
 var args = process.argv.slice(2);
 var method = args[0];
 var url = args[1];
@@ -47,11 +48,35 @@ handle(options, function (err, res, body) {
         console.log(err);
     }
     else {
-        try {
-            console.log(JSON.parse(body));
+        if (body[0] === '{' || body[0] === '[') {
+            echo(body, function (body) {
+                consoleJson(body, console.log);
+            });
         }
-        catch (ex) {
+        else {
             console.log(body);
         }
     }
 });
+
+function echo(str, fail) {
+    exec('echo \'' + str + '\' | json', function (error, stdout, stderr) {
+        if ((error || stderr) && fail) {
+            fail(str);
+        }
+        else {
+            console.log(stdout);
+        }
+    });
+}
+
+function consoleJson(str, fail) {
+    try {
+        console.log(JSON.parse(str));
+    }
+    catch (ex) {
+        if (fail) {
+            fail(str);
+        }
+    }
+}
