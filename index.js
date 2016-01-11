@@ -9,55 +9,78 @@ var options = {
     encode: 'utf8'
 };
 
-var index = url.indexOf('?');
-if (index > -1) {
-    var params = url.slice(index + 1).split('&');
-    var form = {};
-    var query = [];
-    params.forEach(function (param) {
-        var keyvalue = param.split('=');
-        var key = keyvalue[0];
-        var value = keyvalue[1];
-        if (/[\u4e00-\u9fa5]/.test(value)) {
-            value = encodeURIComponent(value);
-        }
+if (method && !url) {
+    url = method;
+    method = 'g';
+}
+
+if (url && method) {
+    initOptions(url, options);
+    handleRequest(method, options);
+}
+else {
+    console.log('getpost help:\n');
+    console.log('    GET: getpost [g] [http://]www.example.com?query=xxxx');
+    console.log('    POST: getpost p [http://]www.example.com?query=xxxx\n');
+    console.log('    For pretty-printing JSON, run "npm install -g json"\n');
+}
+
+function initOptions(url, options) {
+    if (url.indexOf('http://') < 0) {
+        url = 'http://' + url;
+    }
+    var index = url.indexOf('?');
+    if (index > -1) {
+        var params = url.slice(index + 1).split('&');
+        var form = {};
+        var query = [];
+        params.forEach(function (param) {
+            var keyvalue = param.split('=');
+            var key = keyvalue[0];
+            var value = keyvalue[1];
+            if (/[\u4e00-\u9fa5]/.test(value)) {
+                value = encodeURIComponent(value);
+            }
+            if (method === 'p') {
+                form[key] = value;
+            }
+            else {
+                query.push(key + '=' + value);
+            }
+        });
         if (method === 'p') {
-            form[key] = value;
+            options.form = form;
+        }
+        url = url.slice(0, index);
+        if (method === 'g') {
+            url += '?' + query.join('&');
+        }
+    }
+
+    options.url = url;
+}
+
+function handleRequest(method, options) {
+    var handle = request.get;
+    if (method === 'p') {
+        handle = request.post;
+    }
+    handle(options, function (err, res, body) {
+        if (err) {
+            console.log(err);
         }
         else {
-            query.push(key + '=' + value);
+            if (body[0] === '{' || body[0] === '[') {
+                echo(body, function (body) {
+                    consoleJson(body, console.log);
+                });
+            }
+            else {
+                console.log(body);
+            }
         }
     });
-    if (method === 'p') {
-        options.form = form;
-    }
-    url = url.slice(0, index);
-    if (method === 'g') {
-        url += '?' + query.join('&');
-    }
 }
-
-options.url = url;
-
-var handle = request.get;
-if (method === 'p') {
-    handle = request.post;
-}
-handle(options, function (err, res, body) {
-    if (err) {
-        console.log(err);
-    }
-    else {
-        if (body[0] === '{' || body[0] === '[') {
-            echo(body, function (body) {
-                consoleJson(body, console.log);
-            });
-        }
-        else {
-            console.log(body);
-        }
-    }
-});
 
 function echo(str, fail) {
     exec('echo \'' + str + '\' | json', function (error, stdout, stderr) {
