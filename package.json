@@ -1,6 +1,6 @@
 {
   "name": "getpost",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "get or post the url by command line",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,7 +14,9 @@
   "license": "ISC",
   "preferGlobal": true,
   "bin": {
-    "getpost": "index.js"
+    "getpost": "index.js",
+    "get": "get.js",
+    "post": "post.js"
   },
   "dependencies": {
     "request": "^2.67.0"
