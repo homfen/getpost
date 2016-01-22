@@ -11,7 +11,6 @@ var options = {
 if (url) {
     func.initOptions(url, 'p', options);
     if (data) {
-        console.log(data);
         try {
             data = JSON.parse(data);
             func.extend(options, data);
