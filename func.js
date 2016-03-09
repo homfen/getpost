@@ -68,7 +68,7 @@ function handleRequest(method, options) {
             var reg = /\/([^/?]+)(\?\S+)?$/;
             var fileName = options.url.match(reg)[1];
             fileName = fileName || (new Date()).getTime();
-            var path = __dirname + '/' + fileName;
+            var path = process.cwd() + '/' + fileName;
             if (path.indexOf(suffix) < 0) {
                 path += '.' + suffix;
             }
