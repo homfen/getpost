@@ -1,5 +1,6 @@
 var request = require('request');
 var exec = require('child_process').exec;
+var fs = require('fs');
 
 function initOptions(url, method, options) {
     if (url.indexOf('http://') < 0) {
@@ -41,19 +42,38 @@ function handleRequest(method, options) {
     if (method === 'p') {
         handle = request.post;
     }
-    handle(options, function (err, res, body) {
+    var type;
+    var handler = handle(options, function (err, res, body) {
         if (err) {
             console.log(err);
         }
         else {
-            if (body[0] === '{' || body[0] === '[') {
-                echo(body, function (body) {
-                    consoleJson(body, console.log);
-                });
+            if (type === 'text') {
+                if (body[0] === '{' || body[0] === '[') {
+                    echo(body, function (body) {
+                        consoleJson(body, console.log);
+                    });
+                }
+                else {
+                    console.log(body);
+                }
             }
-            else {
-                console.log(body);
+        }
+    }).on('response', function (res) {
+        var headers = res.headers;
+        var types = headers['content-type'].split('/');
+        type = types[0];
+        if (type !== 'text') {
+            var suffix = types[1];
+            var reg = /\/([^/?]+)(\?\S+)?$/;
+            var fileName = options.url.match(reg)[1];
+            fileName = fileName || (new Date()).getTime();
+            var path = __dirname + '/' + fileName;
+            if (path.indexOf(suffix) < 0) {
+                path += '.' + suffix;
             }
+            handler.pipe(fs.createWriteStream(path));
+            console.log('Saved as ' + path);
         }
     });
 }
