@@ -64,14 +64,10 @@ function handleRequest(method, options) {
         var types = headers['content-type'].split('/');
         type = types[0];
         if (type !== 'text') {
-            var suffix = types[1];
             var reg = /\/([^/?]+)(\?\S+)?$/;
             var fileName = options.url.match(reg)[1];
             fileName = fileName || (new Date()).getTime();
             var path = process.cwd() + '/' + fileName;
-            if (path.indexOf(suffix) < 0) {
-                path += '.' + suffix;
-            }
             handler.pipe(fs.createWriteStream(path));
             console.log('Saved as ' + path);
         }
