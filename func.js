@@ -42,13 +42,13 @@ function handleRequest(method, options) {
     if (method === 'p') {
         handle = request.post;
     }
-    var type;
+    var types;
     var handler = handle(options, function (err, res, body) {
         if (err) {
             console.log(err);
         }
         else {
-            if (type === 'text') {
+            if (types[0] === 'text' || types[1] === 'json') {
                 if (body[0] === '{' || body[0] === '[') {
                     echo(body, function (body) {
                         consoleJson(body, console.log);
@@ -61,9 +61,8 @@ function handleRequest(method, options) {
         }
     }).on('response', function (res) {
         var headers = res.headers;
-        var types = headers['content-type'].split('/');
-        type = types[0];
-        if (type !== 'text') {
+        types = headers['content-type'].split('/');
+        if (types[0] !== 'text' && types[1] !== 'json') {
             var totalSize = headers['content-length'];
             if (totalSize) {
                 var downloadSize = 0;
