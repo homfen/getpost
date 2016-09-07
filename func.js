@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 
 function initOptions(url, method, options) {
-    if (url.indexOf('http://') < 0) {
+    if (!/^http(s)?:\/\//.test(url)) {
         url = 'http://' + url;
     }
     var index = url.indexOf('?');
