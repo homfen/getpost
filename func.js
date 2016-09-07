@@ -64,12 +64,27 @@ function handleRequest(method, options) {
         var types = headers['content-type'].split('/');
         type = types[0];
         if (type !== 'text') {
+            var totalSize = headers['content-length'];
+            if (totalSize) {
+                var downloadSize = 0;
+                res.on('data', function (data) {
+                    downloadSize += data.length;
+                    process.stdout.clearLine();
+                    process.stdout.cursorTo(0);
+                    process.stdout.write(
+                        'progress: ' + downloadSize + '/' + totalSize + ', '
+                        + (downloadSize * 100 / totalSize).toFixed(2) + '%'
+                    );
+                });
+            }
             var reg = /\/([^/?]+)(\?\S+)?$/;
             var fileName = options.url.match(reg)[1];
             fileName = fileName || (new Date()).getTime();
             var path = process.cwd() + '/' + fileName;
             handler.pipe(fs.createWriteStream(path));
-            console.log('Saved as ' + path);
+            res.on('end', function () {
+                console.log('\nSaved as ' + path);
+            });
         }
     });
 }
